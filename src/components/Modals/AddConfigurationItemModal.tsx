@@ -61,8 +61,9 @@ const AddConfigurationItemModal = () => {
 
   const formOnSubmit = (e: any) => {
     e.preventDefault()
-    addconfig(formInput.BuildingType, formInput.BuildingCost, formInput.ConstructionTime).then(() => {
-      nav('/configuration')
+    addconfig(formInput.BuildingType, formInput.BuildingCost, formInput.ConstructionTime).then((res) => {
+      console.log(res)
+      window.location.reload()
     })
   }
 
