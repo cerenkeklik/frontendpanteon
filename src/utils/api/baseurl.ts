@@ -1,1 +1,1 @@
-export const baseurl = "http://panteoncase.azurewebsites.net";
+export const baseurl = "https://newtestpanteon.azurewebsites.net";
