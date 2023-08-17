@@ -1,0 +1,1 @@
+export const baseurl = "http://panteoncase.azurewebsites.net";

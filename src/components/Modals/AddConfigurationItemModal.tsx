@@ -1,18 +1,66 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AddConfigFormType } from '../../utils/types'
-import AddConfigurationForm from '../AddConfigurationForm'
+import { addconfig, getavailables } from '../../utils/api/Config'
 
 const AddConfigurationItemModal = () => {
-  let items = ['Farm', 'Academy', 'Headquarters', 'LumberMill', 'Barracks']
+  const [availables, setAvailables] = useState<string[]>([])
+
+  useEffect(() => {
+    getavailables().then((res) => {
+      console.log(res)
+      setAvailables(res)
+    })
+  }, [])
 
   const [formInput, setFormInput] = useState<AddConfigFormType>({
     BuildingCost: 1,
-    BuildingType: items[0],
+    BuildingType: 0,
     ConstructionTime: 30,
     BuildingCostError: null,
     BuildingTypeError: null,
     ConstructionTimeError: null,
   })
+
+  const UpdateConstTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    let val = Number(e.target.value)
+    if (val >= 30 && val <= 1800) {
+      setFormInput((prev: AddConfigFormType) => {
+        return { ...prev, ConstructionTime: val, ConstructionTimeError: null }
+      })
+    } else {
+      setFormInput((prev: AddConfigFormType) => {
+        return {
+          ...prev,
+          ConstructionTimeError: 'Time should be between 30 and 1800s',
+        }
+      })
+    }
+  }
+
+  const UpdateCost = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    let val = Number(e.target.value)
+
+    if (val > 0) {
+      setFormInput((prev: AddConfigFormType) => {
+        return { ...prev, BuildingCost: val, BuildingCostError: null }
+      })
+    } else {
+      setFormInput((prev: AddConfigFormType) => {
+        return {
+          ...prev,
+          BuildingCostError: 'Cost should be a positive number.',
+        }
+      })
+    }
+  }
+
+  const formOnSubmit = (e: any) => {
+    addconfig(formInput.BuildingType, formInput.BuildingCost, formInput.ConstructionTime).then(() => {
+      console.log("added")
+    })
+  }
 
   return (
     <div
@@ -38,7 +86,7 @@ const AddConfigurationItemModal = () => {
               onClick={() =>
                 setFormInput({
                   BuildingCost: 1,
-                  BuildingType: items[0],
+                  BuildingType: 0,
                   ConstructionTime: 30,
                   BuildingCostError: null,
                   BuildingTypeError: null,
@@ -48,11 +96,79 @@ const AddConfigurationItemModal = () => {
             ></button>
           </div>
           <div className="modal-body d-flex justify-content-center">
-            <AddConfigurationForm
-              formInput={formInput}
-              setFormInput={setFormInput}
-              items={items}
-            />
+            <form
+              onSubmit={formOnSubmit}
+              className="d-flex flex-column gap-4 w-75 py-4"
+            >
+              <div className="d-flex gap-2">
+                <div className="d-flex flex-column gap-1">
+                  <label>Type</label>
+                  <select
+                    className="form-select"
+                    required
+                    onChange={(e) =>
+                      setFormInput((prev: any) => {
+                        return { ...prev, BuildingType: Number(e.target.value) }
+                      })
+                    }
+                  >
+                    <option selected disabled>
+                      Select
+                    </option>
+                    {availables.map((item: string, i: number) => {
+                      return (
+                        <option key={i} value={item}>
+                          {item}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+                <div className="d-flex flex-column gap-1">
+                  <label>Building Cost</label>
+                  <input
+                    className="form-control"
+                    type="number"
+                    required
+                    onChange={(e) => UpdateCost(e)}
+                  />
+                  {formInput.BuildingCostError && (
+                    <div className="color-red font-size-12">
+                      {formInput.BuildingCostError}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="d-flex flex-column gap-1">
+                <label>Construction Time(s)</label>
+                <input
+                  className="form-control"
+                  type="number"
+                  required
+                  onChange={(e) => UpdateConstTime(e)}
+                />
+                {formInput.ConstructionTimeError && (
+                  <div className="color-red font-size-12">
+                    {formInput.ConstructionTimeError}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="btn bg-B9561F color-white add-config-btn"
+                disabled={
+                  !formInput.BuildingCostError &&
+                  !formInput.BuildingTypeError &&
+                  !formInput.ConstructionTimeError
+                    ? false
+                    : true
+                }
+              >
+                OK
+              </button>
+            </form>
           </div>
         </div>
       </div>
