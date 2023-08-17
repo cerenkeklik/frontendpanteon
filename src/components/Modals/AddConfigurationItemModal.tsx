@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { AddConfigFormType } from '../../utils/types'
 import { addconfig, getavailables } from '../../utils/api/Config'
+import { useNavigate } from 'react-router-dom'
 
 const AddConfigurationItemModal = () => {
   const [availables, setAvailables] = useState<string[]>([])
+
+  let nav = useNavigate()
 
   useEffect(() => {
     getavailables().then((res) => {
@@ -57,8 +60,9 @@ const AddConfigurationItemModal = () => {
   }
 
   const formOnSubmit = (e: any) => {
+    e.preventDefault()
     addconfig(formInput.BuildingType, formInput.BuildingCost, formInput.ConstructionTime).then(() => {
-      console.log("added")
+      nav('/configuration')
     })
   }
 
